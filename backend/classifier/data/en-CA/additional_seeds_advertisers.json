@@ -1,0 +1,27 @@
+{
+	"political": [
+		"Ontario PC Party",
+		"Kathleen Wynne",
+		"Ontario Proud",
+		"Justin Trudeau",
+		"Alberta Liberal Party",
+		"Ontario NDP",
+		"Saskatchewan New Democratic Party",
+		"Alberta's NDP",
+		"Elementary Educators",
+		"Ontario Liberal Party"
+
+	],
+	"not_political": [
+		"Ford Canada",
+		"The Exploration Place",
+		"SkipTheDishes",
+		"Travel Alberta",
+		"Casper",
+		"trivago",
+		"Smirnoff",
+		"Tourisme Québec",
+		"Vancouver Humane Society"
+
+	]
+}

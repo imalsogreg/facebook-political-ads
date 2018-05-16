@@ -8,7 +8,7 @@ import os
 import click
 import facebook
 import requests
-from classifier.utilities import confs, DB, get_text
+from classifier.utilities import confs, DB, get_html_text
 # DATABASE_URL="postgres:///facebook_ads" pipenv run ./classify add_seeds_from_id --language en-CA
 
 
@@ -40,7 +40,7 @@ def add_seeds_from_id(ctx, language):
     for politicality in ["political", "not_political"]:
         records = DB.query("select * from ads where id in ('{}')".format("','".join(map(str, additional_seed_ids[politicality]))))
         for record in records:
-            seeds[politicality].append(get_text(record))
+            seeds[politicality].append(get_html_text(record["html"]))
 
     for politicality in ["political", "not_political"]:
         seeds[politicality] = list(set(seeds[politicality]))

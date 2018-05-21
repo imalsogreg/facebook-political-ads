@@ -1,0 +1,47 @@
+extern crate diesel;
+extern crate dotenv;
+extern crate kuchiki;
+extern crate server;
+
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use dotenv::dotenv;
+use kuchiki::traits::*;
+use server::models::{get_hovercard_id_link, Ad};
+use server::schema::ads::*;
+use server::schema::ads::dsl::*;
+use server::start_logging;
+use std::env;
+use diesel::dsl::sql;
+use diesel::sql_types::Bool;
+
+fn main() {
+  dotenv().ok();
+  start_logging();
+  let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+  let conn = PgConnection::establish(&database_url).unwrap();
+
+  let dbads: Vec<Ad> = ads
+    .order(created_at.desc())
+    .filter(page.is_null())
+    .filter(sql::<Bool>("html ilike '%data-hovercard%'"))
+    .load::<Ad>(&conn)
+    .expect("Couldn't get ads.");
+  for ad in dbads {
+    let document = kuchiki::parse_html().one(ad.html.clone());
+
+    let html_page = get_hovercard_id_link(&document).ok().and_then(|l| {
+      l.attributes
+        .borrow()
+        .get("data-hovercard")
+        .map(|i| i.to_string())
+    });
+    if html_page.is_some() {
+      println!("{:?}", html_page);
+      diesel::update(ads.find(ad.id))
+        .set(page.eq(html_page.unwrap()))
+        .execute(&conn)
+        .unwrap();
+    }
+  }
+}

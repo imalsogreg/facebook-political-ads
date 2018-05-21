@@ -84,6 +84,14 @@ pub fn get_author_link(
         .ok_or_else(|| "Couldn't find advertiser link".into())
 }
 
+pub fn get_hovercard_id_link(
+    document: &kuchiki::NodeRef,
+) -> Result<kuchiki::NodeDataRef<kuchiki::ElementData>> {
+    document_select(document, ".fwb a")?
+        .nth(0)
+        .ok_or_else(|| "Couldn't find advertiser link".into())
+}
+
 fn get_images(document: &kuchiki::NodeRef) -> Result<Vec<String>> {
     let select = document_select(document, "img")?;
     Ok(select

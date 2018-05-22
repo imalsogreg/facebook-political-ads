@@ -3,6 +3,8 @@ Kick off various maintenance tasks
 """
 import click
 from .commands.classify import classify
+from .commands.try_classify import try_classify
+
 from .commands.build import build
 from .commands.diagnostics import diagnostics
 from .commands.entities import entities
@@ -21,6 +23,7 @@ def cli(ctx, base):
     """
     ctx.obj["base"] = click.format_filename(base)
 
+cli.add_command(try_classify)
 
 cli.add_command(classify)
 cli.add_command(build)

@@ -1,11 +1,12 @@
 import React from "react";
 import { Filters } from "components/filters.jsx";
 import Pagination from "components/pagination.jsx";
+import Segment from "components/identity.jsx";
 import Term from "components/term.jsx";
 import Ad from "components/ad.jsx";
 import { t } from "i18n.js";
 import { connect } from "react-redux";
-import { throttledDispatch, getAds } from "actions.js";
+import { throttledDispatch, getAds, fetchTarget } from "actions.js";
 import { withRouter } from "react-router-dom";
 import { deserialize } from "utils.js";
 
@@ -36,6 +37,16 @@ export class AdListUnconnected extends React.Component {
               )}
             </ul>
           </fieldset>
+          
+          // THIS IS THE IDENTITY CHUNK AHHHHH 
+          What do 
+          <Segment 
+            title={"Gender"} 
+            segments={[{"target":"Gender","segment":"women"}, {"target":"Gender","segment":"men"}]} 
+          />
+          
+          // END IDENTITY CHUNK AHHHHH
+
           <input
             type="search"
             id="search"
@@ -43,6 +54,7 @@ export class AdListUnconnected extends React.Component {
             onChange={this.props.onChange}
           />
           <Filters />
+          trying stuff
         </form>
         <div className="facebook-pac-ads">
           {this.props.ads.length > 0 ? (

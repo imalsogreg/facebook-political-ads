@@ -339,6 +339,42 @@ article {
       margin: auto;
     }
   }
+
+.identity-options {
+    position: relative;
+    text-align: left;
+    color: $pp-blue;
+    margin-bottom: 1em;
+    cursor: pointer;
+
+    @include breakpoint-min(lg) {
+      float: left;
+      width: colspan(4, 12);
+      margin-bottom: 0;
+      margin-right: colspan(g, 12);
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    &.active {
+      display: block;
+      .filter-title {
+        cursor: pointer;
+        z-index: 1001;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 0 2em rgba($pp-blue, 0.4);
+        &:after {
+          content: " ▲";
+        }
+      }
+      .filter-options {
+        cursor: pointer;
+        display: block;
+      }
+    }
+  }
+
   .filter-options {
     display: none;
     position: absolute;

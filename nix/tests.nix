@@ -14,6 +14,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
   testScript = ''
     startAll
+
     $machine->waitForUnit("postgresql.service");
     $machine->waitForUnit("facebook-political-ads.service");
   '';

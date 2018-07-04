@@ -7,8 +7,17 @@ let
   baseDir = "/var/lib/facebook-political-ads";
   facebook-political-ads = (import ./release.nix {}).packages.backend {};
   fbpac-api-public = null;
+  testPassword = "password";
 
-  databaseUrl = "postgresql://${cfg.dbUser}@${cfg.dbHost}:${builtins.toString cfg.dbPort}/${cfg.dbName}";
+  databaseUrl = "postgresql://${cfg.dbUser}:${cfg.dbPassword}@${cfg.dbHost}:${builtins.toString cfg.dbPort}/${cfg.dbName}";
+
+  # databaseUrl = "postgresql://${cfg.dbUser}@${cfg.dbHost}:${builtins.toString cfg.dbPort}/${cfg.dbName}";
+  dbInitialScript = pkgs.writeText "fbpac-initialScript" ''
+    create user ${cfg.dbUser} LOGIN PASSWORD '${cfg.dbPassword}';
+    # create user ${cfg.dbUser} LOGIN;
+    create database ${cfg.dbName} with owner ${cfg.dbUser};
+    create database hello with owner ${cfg.dbUser};
+  '';
 
   # TODO
   # testDatabaseUrl =
@@ -21,7 +30,7 @@ let
       TEST_DATABASE_URL = testDatabaseUrl;
       HOST = "${cfg.host}:${builtins.toString cfg.port}";
       RUST_LOG = "info"; # TODO make configurable;
-      ADMIN_PASSWORD = "password";
+      ADMIN_PASSWORD = testPassword;
     };
 
 
@@ -55,7 +64,7 @@ in {
 
     dbUser = mkOption {
       type = types.str;
-      default = "fbp";
+      default = "fbpac";
       description = ''
         Database username
       '';
@@ -79,9 +88,17 @@ in {
 
     dbName = mkOption {
       type = types.str;
-      default = "fbp";
+      default = "facebook_ads";
       description = ''
         Database name
+      '';
+    };
+
+    dbPassword = mkOption {
+      type = types.str;
+      default = "password";
+      description = ''
+        Database password
       '';
     };
 
@@ -97,9 +114,25 @@ in {
 
   config = mkIf cfg.enable {
     services.postgresql.enable = cfg.localDatabase;
+    services.postgresql.initialScript = dbInitialScript;
+
+    users.extraUsers.fbpac =
+      { description = "facebook-political-ads user";
+        createHome = true;
+        home = baseDir;
+        useDefaultShell = true;
+      };
+
+    services.postgresql.authentication = optionalString cfg.localDatabase
+      ''
+        local ${cfg.dbName} ${cfg.dbUser} ident
+        local ${cfg.dbName} root ident
+      '';
+
     environment.systemPackages = [ facebook-political-ads
                                    # fbpac-api-public
                                  ];
+
     systemd.services.facebook-political-ads =
       { wantedBy = [ "multi-user.target" ];
         requires = optional cfg.localDatabase "postgresql.service";
@@ -107,7 +140,7 @@ in {
         environment = fpaEnv;
         serviceConfig =
           { ExecStart = "${facebook-political-ads}/bin/server";
-            User = "root";
+            User = "fbpac";
             Restart = "always";
           };
       };
